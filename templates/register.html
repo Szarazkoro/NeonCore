@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Create a Hero{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; height: 70vh;">
+    <div class="hero-card" style="width: 400px; text-align: center;">
+        <h2 style="color: #d2a8ff; margin-bottom: 20px;">CREATE A NEW HERO</h2>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="color: #ff4757; margin-bottom: 15px; font-weight: bold;">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/register" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="username" placeholder="Choose a callsign" required
+                   style="padding: 10px; background: #111; border: 1px solid #444; color: #fff; font-size: 16px;">
+
+            <input type="password" name="password" placeholder="Secure password" required
+                   style="padding: 10px; background: #111; border: 1px solid #444; color: #fff; font-size: 16px;">
+
+            <p style="font-size: 12px; color: #888; text-align: left; margin: -10px 0 0 5px;">
+                * Minimum 8 characters, with uppercase, lowercase, and a number.
+            </p>
+
+            <button type="submit" class="enter-arena-btn" style="border-color: #d2a8ff; color: #d2a8ff; margin-top: 5px;">REGISTER</button>
+        </form>
+        <p style="margin-top: 20px; font-size: 14px;">Already have an account? <a href="/login" style="color: #66fcf1;">Log in.</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Cyber Shop{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+    <div class="hero-card" style="width: 100%; max-width: 800px; border-color: #2ea043; background: #0a110a;">
+        <h2 style="color: #2ea043; text-align: center; margin-bottom: 20px; letter-spacing: 3px;">
+            🛒 CYBER SHOP
+        </h2>
+        <p style="text-align: center; color: #888; margin-bottom: 40px;">
+            Invest arena credits into your hero's resilience and power.<br>
+            <span style="font-size: 12px;">(Cosmetic upgrades and boosters will arrive here later.)</span>
+        </p>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #111; padding: 25px; border-radius: 8px; border: 1px solid #333; transition: 0.2s;">
+            <div>
+                <h3 style="color: #fff; margin: 0 0 10px 0; font-size: 20px;">❤️ Core Expansion</h3>
+                <p style="color: #aaa; margin: 0 0 10px 0; font-size: 14px;">Increase your base health by +25 points.</p>
+                <p style="color: #2ea043; margin: 0; font-weight: bold; font-family: monospace; font-size: 16px;">
+                    Current HP: <span id="shopHpDisplay">{{ "%.1f"|format(player.max_health) }}</span>
+                </p>
+            </div>
+
+            {% set upgrade_cost = 100 + ((player.bonus_hp // 25) * 50) %}
+
+            <button id="buyHpBtn" class="action-btn" style="border-color: #2ea043; color: #2ea043; min-width: 200px; font-size: 18px;" onclick="buyHpUpgrade()">
+                BUY (¤<span id="hpCostDisplay">{{ upgrade_cost }}</span>)
+            </button>
+        </div>
+
+        <div id="shopMessage" style="margin-top: 15px; font-weight: bold; text-align: right; height: 20px; font-size: 16px;"></div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="/" class="action-btn btn-defense" style="text-decoration: none;">&larr; Return to hub</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function buyHpUpgrade() {
+    const btn = document.getElementById('buyHpBtn');
+    btn.disabled = true;
+
+    fetch('/api/buy_hp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msg = document.getElementById('shopMessage');
+        if (data.success) {
+            document.getElementById('shopHpDisplay').innerText = data.new_hp;
+            document.getElementById('navCredits').innerText = '¤' + data.credits;
+
+            const currentBonusHp = data.new_hp - 100 - (({{ player.arena_level }} - 1) * 20);
+            const nextCost = 100 + ((currentBonusHp / 25) * 50);
+            document.getElementById('hpCostDisplay').innerText = nextCost;
+
+            msg.style.color = '#2ea043';
+            msg.innerText = 'Core expansion successful! +25 HP';
+            setTimeout(() => msg.innerText = '', 3000);
+        } else {
+            msg.style.color = '#ff4757';
+            msg.innerText = data.error;
+            setTimeout(() => msg.innerText = '', 3000);
+        }
+        btn.disabled = false;
+    });
+}
+</script>
+{% endblock %}

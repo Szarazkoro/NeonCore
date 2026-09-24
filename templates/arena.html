@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Cyber Arena - Level {{ current_user.arena_level }}{% endblock %}
+
+{% block content %}
+<div class="arena-wrapper">
+    <div class="arena-header">
+        <h1 class="neon-cyan">CYBER ARENA - LEVEL {{ current_user.arena_level }}</h1>
+        <p id="battleLog">Initializing combat sequence...</p>
+        <p id="comboDisplay" class="combo-display">COMBO x0</p>
+    </div>
+
+    <div class="battlefield">
+        <div class="combatant hero-side">
+            <h2 class="neon-cyan">{{ current_user.username | upper }}</h2>
+            <div class="health-bar-container">
+                <div id="heroHpBar" class="health-bar hp-cyan" style="width: 100%;"></div>
+            </div>
+            <div class="shield-bar-container">
+                <div id="heroShieldBar" class="health-bar shield-bar" style="width: 100%;"></div>
+            </div>
+            <div id="heroSprite" class="sprite hero-sprite"></div>
+        </div>
+
+        <div class="vs-badge">VS</div>
+
+        <div class="combatant enemy-side">
+            <h2 id="enemyNameDisplay" class="neon-red">SCANNING...</h2>
+            <div class="health-bar-container">
+                <div id="enemyHpBar" class="health-bar hp-red" style="width: 100%;"></div>
+            </div>
+            <div id="enemySprite" class="sprite enemy-sprite"></div>
+        </div>
+    </div>
+
+<div id="actionPanel" class="action-panel">
+        <button id="btnDefense" class="action-btn btn-defense">
+            <span id="shieldStatus">🛡️ SHIELD READY</span>
+        </button>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 210px;">
+            <div id="ultiChargeBar" style="width: 100%; height: 16px; border-radius: 999px; overflow: hidden; border: 1px solid rgba(210,168,255,0.8); background: rgba(255,255,255,0.06); box-shadow: inset 0 0 12px rgba(210,168,255,0.15);">
+                <div id="ultiFill" style="height: 100%; width: 0%; background: linear-gradient(90deg, #7e57c2, #d2a8ff); border-radius: inherit; transition: width 0.2s ease-in-out;"></div>
+            </div>
+            <button id="btnSuper" class="action-btn btn-super" style="width: 100%;" disabled>
+                <span id="ultiText">⚡ CHARGING 0%</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="postBattlePanel" style="display: none; text-align: center; margin-top: 20px;">
+        <h2 id="postBattleResult" style="margin-bottom: 20px; text-shadow: 0 0 10px currentColor;"></h2>
+        <button id="btnNextLevel" class="action-btn btn-defense" style="display: none;" onclick="location.reload()">NEXT LEVEL &rarr;</button>
+        <button class="action-btn btn-super" onclick="window.location.href='/'">RETURN TO BASE</button>
+    </div>
+
+    <div id="retreatPanel" style="text-align: center; margin-top: 30px;">
+        <a href="/" class="action-btn" style="border-color: #444; color: #888; text-decoration: none; font-size: 14px; padding: 10px 20px;">ABORT COMBAT</a>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/arena.js') }}"></script>
+{% endblock %}

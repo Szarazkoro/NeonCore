@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Network Login{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; height: 70vh;">
+    <div class="hero-card" style="width: 400px; text-align: center;">
+        <h2 style="color: #66fcf1; margin-bottom: 20px;">LOGIN TO THE MATRIX</h2>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="color: #ff4757; margin-bottom: 15px; font-weight: bold;">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="username" placeholder="Callsign (Username)" required
+                   style="padding: 10px; background: #111; border: 1px solid #444; color: #fff; font-size: 16px;">
+
+            <input type="password" name="password" placeholder="Password" required
+                   style="padding: 10px; background: #111; border: 1px solid #444; color: #fff; font-size: 16px;">
+
+            <button type="submit" class="enter-arena-btn" style="border-color: #66fcf1; color: #66fcf1; margin-top: 10px;">CONNECT</button>
+        </form>
+        <p style="margin-top: 20px; font-size: 14px;">New here? <a href="/register" style="color: #00e5ff;">Create a hero.</a></p>
+    </div>
+</div>
+{% endblock %}

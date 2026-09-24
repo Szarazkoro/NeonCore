@@ -1,0 +1,364 @@
+/* =========================================
+   1. ALAPVETŐ BEÁLLÍTÁSOK ÉS STRUKTÚRA
+   ========================================= */
+body {
+    margin: 0; 
+    background-color: #0b0c10; 
+    color: #c5c6c7;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    /* ÚJ: Fix képernyőmagasság és görgetés tiltása */
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: #1f2833; 
+    padding: 10px 30px; /* Vékonyított fejléc */
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 2px solid #45a29e;
+}
+.logo { color: #66fcf1; font-size: 24px; font-weight: bold; text-decoration: none; }
+.nav-links a { color: #c5c6c7; text-decoration: none; font-size: 18px; }
+.nav-links a:hover { color: #66fcf1; }
+.audio-toggle {
+    margin-right: 20px;
+    padding: 6px 10px;
+    border: 1px solid #66fcf1;
+    border-radius: 4px;
+    background: transparent;
+    color: #66fcf1;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+.audio-toggle:hover { background: #66fcf1; color: #0b0c10; }
+.audio-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 12px;
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: bold;
+}
+.audio-control input { width: 70px; accent-color: #66fcf1; cursor: pointer; }
+
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 10px 20px; 
+    
+    /* ÚJ: A tartalom kitölti a maradék helyet, és mindent középre húz */
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+footer { 
+    text-align: center; 
+    padding: 10px; 
+    color: #666; 
+    border-top: 1px solid #1f2833; 
+    /* A hatalmas margin-top eltávolítva */
+}
+
+/* =========================================
+   2. KÖZPONT (HUB) ÉS KÁRTYÁK
+   ========================================= */
+.page-title { text-align: center; color: #66fcf1; margin: 10px 0; }
+
+.game-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 15px; /* Szorosabb rács */
+}
+
+.game-card {
+    background: #1f2833; 
+    padding: 15px; 
+    border-radius: 8px; 
+    text-decoration: none;
+    color: #fff; 
+    transition: transform 0.2s;
+}
+.game-card:hover { transform: translateY(-5px); }
+.game-card h2 { margin-top: 0; margin-bottom: 5px;}
+.game-card p { margin: 5px 0; font-size: 14px;}
+.play-btn { font-weight: bold; margin-top: 10px; display: block; }
+
+/* Hős Adatlap (Feszesebb elrendezés) */
+.hero-card {
+    background: #161b22; border: 2px solid #30363d; border-radius: 12px;
+    padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.hero-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-bottom: 15px;
+}
+.hero-header h2 { margin: 0; color: #c9d1d9; letter-spacing: 2px; font-size: 20px;}
+.hero-level { background: #238636; color: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 15px; }
+.stat-box { background: #0d1117; border: 1px solid; border-radius: 8px; padding: 10px 20px; text-align: center; flex: 1; min-width: 100px; }
+.stat-name { display: block; color: #8b949e; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+.stat-value { display: block; color: #fff; font-size: 24px; font-weight: bold; font-family: 'Courier New', Courier, monospace; }
+
+.enter-arena-btn {
+    background: transparent; border: 2px solid #ff4757; color: #ff4757;
+    padding: 10px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer;
+    text-transform: uppercase; transition: all 0.3s; margin: 0 auto; display: block;
+}
+.enter-arena-btn:hover { background: #ff4757; color: #fff; box-shadow: 0 0 20px rgba(255, 71, 87, 0.5); }
+
+/* =========================================
+   3. MINIJÁTÉKOK (Játéktér és XP sáv)
+   ========================================= */
+.game-layout { display: flex; justify-content: center; width: 100%; height: 100%; align-items: center; }
+
+.game-layout {
+    gap: 42px;
+}
+
+.game-area { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%;
+    max-width: 400px; /* Fix játéktér szélesség */
+    flex: 1;
+}
+
+#gameContainer { 
+    position: relative; 
+    background: #000; 
+    border: 2px solid #333; 
+    width: 400px;
+    height: 600px;
+}
+canvas { display: block; width: 100%; height: 100%; }
+
+/* Vastag XP Sáv a játéktér felett */
+.xp-tracker { width: 100%; margin-bottom: 10px; }
+.xp-bar-container {
+    position: relative; width: 100%; height: 30px;
+    background: #111; border: 2px solid #333; border-radius: 8px; overflow: hidden;
+}
+.xp-bar-fill { height: 100%; width: 0%; transition: width 0.1s linear; }
+.xp-bar-text {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Courier New', Courier, monospace;
+    font-weight: bold; font-size: 18px; letter-spacing: 2px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9); z-index: 2; pointer-events: none;
+}
+.xp-texts { display: none; }
+
+/* =========================================
+   4. KIBER ARÉNA (Fő Harctér)
+   ========================================= */
+.arena-wrapper {
+    background: #050505; border: 2px solid #333; border-radius: 12px;
+    padding: 20px; box-shadow: 0 0 50px rgba(0,0,0,0.8) inset;
+    background-image: linear-gradient(rgba(102, 252, 241, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(102, 252, 241, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    width: 100%; max-width: 800px; margin: 0 auto; /* Középre húzva, kompakt */
+}
+
+.arena-header { text-align: center; margin-bottom: 15px; }
+.arena-header h1 { margin: 0 0 10px 0; font-size: 24px; }
+#battleLog { color: #f1c40f; font-size: 18px; font-weight: bold; font-family: 'Courier New', monospace; height: 25px; margin: 0;}
+.combo-display { color: #d2a8ff; font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 2px; margin: 4px 0 0; min-height: 18px; }
+
+.battlefield { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.combatant { width: 40%; text-align: center; position: relative; }
+.vs-badge { font-size: 40px; font-weight: bold; color: #888; font-style: italic; }
+
+.neon-cyan { color: #66fcf1; text-shadow: 0 0 10px #66fcf1; margin-bottom: 10px;}
+.neon-red { color: #ff4757; text-shadow: 0 0 10px #ff4757; margin-bottom: 10px;}
+
+.health-bar-container, .shield-bar-container {
+    width: 100%; height: 15px; background: #222; border: 1px solid #444; border-radius: 10px; margin-bottom: 5px; overflow: hidden;
+}
+.health-bar, .shield-bar { height: 100%; transition: width 0.3s; }
+.hp-cyan { background: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
+.hp-red { background: #ff4757; box-shadow: 0 0 10px #ff4757; }
+.shield-bar { background: #d2a8ff; box-shadow: 0 0 10px #d2a8ff; }
+
+.sprite { width: 100px; height: 100px; margin: 15px auto; border-radius: 10px; }
+.hero-sprite { background: #00e5ff; box-shadow: 0 0 30px #00e5ff; }
+.enemy-sprite { background: #ff4757; box-shadow: 0 0 30px #ff4757; }
+
+.action-panel { display: flex; justify-content: center; gap: 20px; }
+.action-btn { 
+    padding: 12px 25px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer;
+    background: #111; color: #fff; border: 2px solid; transition: all 0.2s; text-transform: uppercase;
+}
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-defense { border-color: #66fcf1; color: #66fcf1; }
+.btn-defense:hover:not(:disabled) { background: #66fcf1; color: #000; box-shadow: 0 0 15px #66fcf1;}
+.btn-super { border-color: #d2a8ff; color: #d2a8ff; }
+.btn-super:hover:not(:disabled) { background: #d2a8ff; color: #000; box-shadow: 0 0 15px #d2a8ff;}
+
+/* =========================================
+   5. HARCI ANIMÁCIÓK ÉS VIZUÁLIS EFFEKTEK
+   ========================================= */
+@keyframes attackRight { 0% { transform: translateX(0); } 50% { transform: translateX(60px) scale(1.1); box-shadow: 0 0 50px #fff; } 100% { transform: translateX(0); } }
+@keyframes attackLeft { 0% { transform: translateX(0); } 50% { transform: translateX(-60px) scale(1.1); box-shadow: 0 0 50px #fff; } 100% { transform: translateX(0); } }
+.anim-attack-hero { animation: attackRight 0.3s ease; }
+.anim-attack-enemy { animation: attackLeft 0.3s ease; }
+
+@keyframes hitFlash { 0% { background-color: #fff; transform: scale(0.9); } 100% { transform: scale(1); } }
+.anim-hit { animation: hitFlash 0.2s ease; }
+
+.status-defending { box-shadow: 0 0 40px #d2a8ff, inset 0 0 20px #d2a8ff !important; border: 4px solid #d2a8ff; transform: scale(0.95); }
+.status-dodging { opacity: 0.3; filter: blur(4px); transform: skewX(-20deg); }
+
+.floating-text {
+    position: absolute; font-weight: bold; pointer-events: none;
+    animation: floatUp 1s ease-out forwards; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    z-index: 10; left: 50%; transform: translateX(-50%);
+}
+@keyframes floatUp { 0% { opacity: 1; top: 80px; } 100% { opacity: 0; top: -20px; } }
+.text-dmg { color: #ff4757; font-size: 24px; }
+.text-crit { color: #f1c40f; font-size: 32px; text-shadow: 0 0 15px #f1c40f; z-index: 11; }
+.text-block { color: #66fcf1; font-size: 20px; }
+.text-dodge { color: #2ea043; font-size: 20px; font-style: italic; }
+
+.arena-wrapper.arena-shake {
+    animation: arenaShake 0.22s ease-in-out;
+}
+
+@keyframes arenaShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px) rotate(-0.3deg); }
+    40% { transform: translateX(5px) rotate(0.3deg); }
+    60% { transform: translateX(-4px) rotate(-0.2deg); }
+    80% { transform: translateX(4px) rotate(0.2deg); }
+    100% { transform: translateX(0); }
+}
+
+/* =========================================
+   7. AJÁNLÓ SÁV (Játéktér mellett)
+   ========================================= */
+.recommended-sidebar {
+    width: 280px;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 45px; /* Kicsit lejjebb toljuk, hogy a játék címsorával legyen egyvonalban */
+    margin-left: 12px;
+}
+
+.recommended-sidebar h3 {
+    color: #c5c6c7;
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.recommended-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rec-card {
+    background: #111;
+    border: 1px solid #222;
+    border-left: 4px solid #66fcf1; /* A Python inline felülírja a játék színére */
+    padding: 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.rec-card:hover {
+    transform: translateX(5px);
+    background: #1a1a1a;
+    border-color: #444;
+}
+
+.rec-card h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
+
+.rec-card p {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+}
+
+/* =========================================
+   8. RANGLISTA TÁBLÁZAT
+   ========================================= */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(11, 12, 16, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 15px 20px;
+    text-align: center;
+    border-bottom: 1px solid #222;
+}
+
+.leaderboard-table thead {
+    background: #1f2833;
+}
+
+.leaderboard-table th {
+    color: #66fcf1;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.leaderboard-table tbody tr {
+    transition: background 0.2s;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: #1a1a1a;
+}
+
+/* Dobogós helyezések kiemelése */
+.rank-1 { color: #f1c40f; font-size: 22px; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); background: rgba(241, 196, 15, 0.05); }
+.rank-2 { color: #bdc3c7; font-size: 20px; background: rgba(189, 195, 199, 0.05); }
+.rank-3 { color: #cd7f32; font-size: 18px; background: rgba(205, 127, 50, 0.05); }
+.rank-normal { color: #c5c6c7; font-size: 16px; }
+
+@media (max-width: 800px) {
+    body { height: auto; min-height: 100vh; overflow: auto; }
+    .navbar { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .logo { font-size: 20px; }
+    .nav-links { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .nav-links a, .audio-toggle { margin-right: 0 !important; }
+    .audio-control { margin-right: 2px; }
+    .container { padding: 12px; justify-content: flex-start; }
+    .game-layout { height: auto; flex-direction: column; gap: 28px; }
+    .game-area { max-width: 100%; }
+    #gameContainer { width: min(400px, calc(100vw - 28px)); height: auto; aspect-ratio: 2 / 3; }
+    .recommended-sidebar { width: 100%; min-width: 0; margin: 0; }
+    .arena-wrapper { padding: 12px; }
+    .battlefield { gap: 8px; }
+    .combatant { width: 42%; }
+    .sprite { width: 76px; height: 76px; }
+    .vs-badge { font-size: 28px; }
+    .action-panel { flex-wrap: wrap; gap: 12px; }
+    .action-panel > div { min-width: min(210px, 100%) !important; }
+}

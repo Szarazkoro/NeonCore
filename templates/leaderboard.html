@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Global Leaderboard{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 40px;">
+    <div class="hero-card" style="width: 100%; max-width: 800px;">
+        <h2 style="color: #f1c40f; text-align: center; margin-bottom: 30px; letter-spacing: 3px;">
+            🏆 HALL OF FAME: TOP 10 HEROES
+        </h2>
+
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Callsign</th>
+                    <th>Arena Level</th>
+                    <th>Total XP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                    <tr class="{% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-normal{% endif %}">
+                        <td>
+                            {% if loop.index == 1 %}🥇
+                            {% elif loop.index == 2 %}🥈
+                            {% elif loop.index == 3 %}🥉
+                            {% else %}#{{ loop.index }}
+                            {% endif %}
+                        </td>
+                        <td style="font-weight: bold;">
+                            {{ player.username }}
+                            {% if player.username == current_user.username %}<span style="color: #66fcf1; font-size: 12px;">(You)</span>{% endif %}
+                        </td>
+                        <td>LVL {{ player.arena_level }}</td>
+                        <td style="font-family: monospace; font-size: 18px;">
+                            {{ player.xp_aim + player.xp_timing + player.xp_defense + player.xp_agility + player.xp_super }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="action-btn btn-defense" style="text-decoration: none;">&larr; Return to hub</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

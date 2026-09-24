@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hub-container">
+    <div class="hero-card">
+        <div class="hero-header">
+            <h2>CYBER ARENA HUB</h2>
+            <div class="hero-level">Level: {{ player.arena_level }}</div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat-box" style="border-color: #2ea043;">
+                <span class="stat-name">Health</span>
+                <span class="stat-value" id="hpDisplay" style="color: #2ea043; text-shadow: 0 0 10px #2ea043;">
+                    {{ "%.1f"|format(player.max_health) }}
+                </span>
+            </div>
+            <div class="stat-box" style="border-color: #ff4757;">
+                <span class="stat-name">Base Damage</span>
+                <span class="stat-value">{{ "%.1f"|format(player.base_damage) }}</span>
+            </div>
+            <div class="stat-box" style="border-color: #ff9f43;">
+                <span class="stat-name">Critical Chance</span>
+                <span class="stat-value">{{ "%.1f"|format(player.crit_chance) }}%</span>
+            </div>
+            <div class="stat-box" style="border-color: #66fcf1;">
+                <span class="stat-name">Max Shield</span>
+                <span class="stat-value">{{ "%.1f"|format(player.max_shield) }}</span>
+            </div>
+            <div class="stat-box" style="border-color: #00e5ff;">
+                <span class="stat-name">Dodge</span>
+                <span class="stat-value">{{ "%.1f"|format(player.dodge_chance) }}%</span>
+            </div>
+            <div class="stat-box" style="border-color: #d2a8ff;">
+                <span class="stat-name">Ultimate Power</span>
+                <span class="stat-value">{{ "%.1f"|format(player.ultimate_power) }}</span>
+            </div>
+        </div>
+
+        <div class="arena-action">
+            <a href="/arena" class="enter-arena-btn">ENTER THE ARENA</a>
+        </div>
+    </div>
+
+    <h1 class="page-title" style="margin-top: 50px;">Training Modules</h1>
+    <p style="text-align: center; color: #888;">Train your hero to improve survival odds inside the arena.</p>
+
+    <div class="game-grid">
+        {% for slug, game in games.items() %}
+        <a href="/play/{{ slug }}" class="game-card" style="border-bottom: 4px solid {{ game.color }};">
+            <h2 style="color: {{ game.color }}">{{ game.title }}</h2>
+            <p>{{ game.description }}</p>
+            <span class="play-btn" style="color: {{ game.color }};">Start training &rarr;</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

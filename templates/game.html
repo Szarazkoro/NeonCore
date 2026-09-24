@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ game.title }} - Cyber Portal{% endblock %}
+
+{% block content %}
+<div class="game-layout">
+    <div class="game-area">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 15px;">
+            <div>
+                <h1 style="color: {{ game.color }}; margin: 0;">{{ game.title }}</h1>
+                <p style="margin: 5px 0 0 0; color: #888;">{{ game.description }}</p>
+            </div>
+            <a href="/" class="action-btn" style="text-decoration: none; border-color: #ff4757; color: #ff4757; padding: 10px 20px;">&larr; Back to the hub</a>
+        </div>
+
+        <div class="xp-tracker">
+            <div class="xp-bar-container">
+                <div id="xpBarFill" class="xp-bar-fill" style="background: {{ game.color }}; box-shadow: 0 0 15px {{ game.color }};"></div>
+                <div class="xp-bar-text">
+                    <span id="rawScoreDisplay">0</span> / 100
+                </div>
+            </div>
+            <span id="realXpDisplay" style="display: none;"></span>
+        </div>
+
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="400" height="600"></canvas>
+        </div>
+    </div>
+
+    <div class="recommended-sidebar">
+        <h3><span style="color: #66fcf1;">></span> YOU MAY ALSO LIKE</h3>
+        <div class="recommended-list">
+            {% for rec_slug, rec_game in recommended.items() %}
+                <a href="/play/{{ rec_slug }}" class="rec-card" style="border-left-color: {{ rec_game.color }};">
+                    <h4 style="color: {{ rec_game.color }};">{{ rec_game.title }}</h4>
+                    <p>{{ rec_game.description[:65] }}...</p>
+                </a>
+            {% endfor %}
+        </div>
+
+        <aside class="sidebar">
+            <div class="ad-container-sidebar">
+                [ Ad Slot (300x250) ]
+            </div>
+            <h3>Featured Modules</h3>
+        </aside>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename=game.js_file) }}"></script>
+{% endblock %}
