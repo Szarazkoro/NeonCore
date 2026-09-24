@@ -2,15 +2,18 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 import os
 import random
 import re
 import secrets
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "super-secret-cyber-key"
-
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, ".env"))
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-secret-key")
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "arena.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -274,4 +277,12 @@ def buy_hp():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5000)
+    is_production = os.getenv("PROD", "0").strip() == "1"
+    host = os.getenv("HOST", "0.0.0.0" if is_production else "127.0.0.1")
+    port = int(os.getenv("PORT", "5000"))
+
+    if is_production:
+        from waitress import serve
+        serve(app, host=host, port=port)
+    else:
+        app.run(debug=True, host=host, port=port)
