@@ -7,18 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="google-adsense-account" content="ca-pub-7544688152746875">
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-        window.gtag('consent', 'default', {
-            ad_storage: 'denied',
-            analytics_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied',
-            wait_for_update: 500
-        });
-        window.BODOR_GOOGLE_ADSENSE_CLIENT_ID = {{ config.get('GOOGLE_ADSENSE_CLIENT_ID', '')|tojson }};
-    </script>
+    {% if config.get('GOOGLE_ADSENSE_CLIENT_ID') %}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config.get('GOOGLE_ADSENSE_CLIENT_ID')|urlencode }}" crossorigin="anonymous"></script>
+    {% endif %}
     <script>
         (() => {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
@@ -74,23 +65,10 @@
         <span class="footer-links">
             <a href="{{ url_for('about') }}">About / Contact</a>
             <a href="{{ url_for('privacy') }}">Privacy Policy</a>
-            <button id="cookieSettingsButton" class="footer-link-button" type="button">Cookie settings</button>
         </span>
     </footer>
 
-    <section id="cookieConsent" class="cookie-consent" role="dialog" aria-label="Cookie consent" hidden>
-        <div>
-            <strong>Cookies at Bodor Game</strong>
-            <p>We use essential cookies to keep the service secure and remember your preferences. Optional Google advertising and analytics technologies are off until you choose to allow them.</p>
-        </div>
-        <div class="cookie-actions">
-            <button id="cookieDecline" class="cookie-button cookie-button-secondary" type="button">Decline optional</button>
-            <button id="cookieAccept" class="cookie-button" type="button">Allow optional cookies</button>
-        </div>
-    </section>
-
     <script src="{{ url_for('static', filename='js/audio-system.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bg-music.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/cookie-consent.js') }}"></script>
 </body>
 </html>
