@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ game.title }} - Cyber Portal{% endblock %}
+{% block title %}{{ game.title }} - Bodor Game{% endblock %}
 
 {% block content %}
 <div class="game-layout">
@@ -29,7 +29,7 @@
     </div>
 
     <div class="recommended-sidebar">
-        <h3><span style="color: #66fcf1;">></span> YOU MAY ALSO LIKE</h3>
+            <h3><span style="color: #66fcf1;">></span> MORE TRAINING LABS</h3>
         <div class="recommended-list">
             {% for rec_slug, rec_game in recommended.items() %}
                 <a href="/play/{{ rec_slug }}" class="rec-card" style="border-left-color: {{ rec_game.color }};">
@@ -40,10 +40,7 @@
         </div>
 
         <aside class="sidebar">
-            <div class="ad-container-sidebar">
-                [ Ad Slot (300x250) ]
-            </div>
-            <h3>Featured Modules</h3>
+            <h3>Featured Labs</h3>
         </aside>
     </div>
 </div>

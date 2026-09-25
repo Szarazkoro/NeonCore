@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+from sqlalchemy import inspect, text
 import os
 import random
 import re
@@ -13,6 +14,7 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-secret-key")
+app.config["GOOGLE_ADSENSE_CLIENT_ID"] = os.getenv("GOOGLE_ADSENSE_CLIENT_ID", "")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "arena.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -42,18 +44,23 @@ def protect_state_changing_requests():
 
 @app.context_processor
 def inject_csrf_token():
-    return {"csrf_token": get_csrf_token}
+    guest_player = get_guest_player(create=False)
+    return {
+        "csrf_token": get_csrf_token,
+        "guest_player": guest_player,
+        "guest_mode": not current_user.is_authenticated and guest_player is not None,
+    }
 
 GAMES = {
-    "gravity-switch": {"title": "Gravity Switch", "description": "Develop Dodge! Avoid red obstacles and keep the rhythm alive.", "js_file": "js/gravity-switch.js", "color": "#ff9f43"},
-    "neon-core": {"title": "Neon Core", "description": "Develop Shield! Protect the core from incoming projectiles.", "js_file": "js/neon-core.js", "color": "#d2a8ff"},
+    "gravity-switch": {"title": "Gravity Switch", "description": "Develop Dodge! Avoid red obstacles and keep the rhythm alive.", "js_file": "js/gravity-switch.js", "color": "#00e5ff"},
+    "neon-core": {"title": "Neon Core", "description": "Develop Shield! Protect the core from incoming projectiles.", "js_file": "js/neon-core.js", "color": "#66fcf1"},
     "target-practice": {"title": "Target Practice", "description": "Develop Base Damage! Hit targets before they disappear.", "js_file": "js/target-practice.js", "color": "#ff4757"},
-    "core-sync": {"title": "Core Sync", "description": "Develop Critical Chance! Hit the pulse at the perfect moment.", "js_file": "js/core-sync.js", "color": "#f1c40f"},
-    "energy-overload": {"title": "Energy Overload", "description": "Develop Ultimate Power! Catch blue energy and avoid red danger.", "js_file": "js/energy-overload.js", "color": "#00e5ff"},
+    "core-sync": {"title": "Core Sync", "description": "Develop Critical Chance! Hit the pulse at the perfect moment.", "js_file": "js/core-sync.js", "color": "#ff9f43"},
+    "energy-overload": {"title": "Energy Overload", "description": "Develop Ultimate Power! Catch blue energy and avoid red danger.", "js_file": "js/energy-overload.js", "color": "#d2a8ff"},
     "laser-matrix": {"title": "Laser Matrix", "description": "Damage (70%) + Dodge (30%)! Track targets and avoid lasers.", "js_file": "js/laser-matrix.js", "color": "#ff4757"},
-    "neon-highway": {"title": "Neon Highway", "description": "Dodge (70%) + Shield (30%). Collect green and avoid red.", "js_file": "js/neon-highway.js", "color": "#ff9f43"},
-    "data-decryptor": {"title": "Data Decryptor", "description": "Critical Chance (60%) + Ultimate (40%). Enter the pattern flawlessly.", "js_file": "js/data-decryptor.js", "color": "#f1c40f"},
-    "flux-stabilizer": {"title": "Flux Stabilizer", "description": "Critical Chance (60%) + Shield (40%). Keep the zone centered.", "js_file": "js/flux-stabilizer.js", "color": "#00e5ff"},
+    "neon-highway": {"title": "Neon Highway", "description": "Dodge (70%) + Shield (30%). Collect green and avoid red.", "js_file": "js/neon-highway.js", "color": "#00e5ff"},
+    "data-decryptor": {"title": "Data Decryptor", "description": "Critical Chance (60%) + Ultimate (40%). Enter the pattern flawlessly.", "js_file": "js/data-decryptor.js", "color": "#ff9f43"},
+    "flux-stabilizer": {"title": "Flux Stabilizer", "description": "Health (60%) + Critical Chance (40%). Keep the zone centered.", "js_file": "js/flux-stabilizer.js", "color": "#2ea043"},
 }
 
 MAX_XP_PER_REQUEST = 250
@@ -67,6 +74,7 @@ class Player(UserMixin, db.Model):
     cyber_credits = db.Column(db.Integer, default=0)
     bonus_hp = db.Column(db.Integer, default=0)
 
+    xp_health = db.Column(db.Float, default=0.0)
     xp_aim = db.Column(db.Float, default=0.0)
     xp_timing = db.Column(db.Float, default=0.0)
     xp_defense = db.Column(db.Float, default=0.0)
@@ -75,7 +83,7 @@ class Player(UserMixin, db.Model):
 
     @property
     def max_health(self):
-        return round(100.0 + ((self.arena_level - 1) * 20) + self.bonus_hp, 1)
+        return round(100.0 + ((self.arena_level - 1) * 20) + self.bonus_hp + (self.xp_health / 4), 1)
 
     @property
     def base_damage(self):
@@ -116,6 +124,106 @@ class Player(UserMixin, db.Model):
             },
         }
 
+
+class GuestPlayer:
+    """A temporary player stored in the signed Flask session, never in SQLite."""
+
+    fields = ("username", "arena_level", "cyber_credits", "bonus_hp", "xp_health", "xp_aim", "xp_timing", "xp_defense", "xp_agility", "xp_super")
+
+    def __init__(self, state):
+        for field in self.fields:
+            setattr(self, field, state[field])
+
+    @property
+    def max_health(self):
+        return round(100.0 + ((self.arena_level - 1) * 20) + self.bonus_hp + (self.xp_health / 4), 1)
+
+    @property
+    def base_damage(self):
+        return round(10.0 + (self.xp_aim / 50), 1)
+
+    @property
+    def crit_chance(self):
+        return round(min(5.0 + (self.xp_timing / 200), 50.0), 1)
+
+    @property
+    def max_shield(self):
+        return round(50.0 + (self.xp_defense / 4), 1)
+
+    @property
+    def dodge_chance_tenths(self):
+        return min(350, round(20 + (self.xp_agility * 2 / 15)))
+
+    @property
+    def dodge_chance(self):
+        return self.dodge_chance_tenths / 10
+
+    @property
+    def ultimate_power(self):
+        return round((self.base_damage * 3) + (self.xp_super / 50), 1)
+
+    def to_dict(self):
+        return {
+            "username": self.username,
+            "arena_level": self.arena_level,
+            "cyber_credits": self.cyber_credits,
+            "stats": {
+                "health": self.max_health,
+                "damage": self.base_damage,
+                "crit_chance": self.crit_chance,
+                "shield": self.max_shield,
+                "dodge_chance": self.dodge_chance,
+                "ultimate": self.ultimate_power,
+            },
+        }
+
+    def as_state(self):
+        return {field: getattr(self, field) for field in self.fields}
+
+
+def create_guest_state():
+    return {
+        "username": f"PLAYER-{secrets.token_hex(2).upper()}",
+        "arena_level": 1,
+        "cyber_credits": 0,
+        "bonus_hp": 0,
+        "xp_health": 0.0,
+        "xp_aim": 0.0,
+        "xp_timing": 0.0,
+        "xp_defense": 0.0,
+        "xp_agility": 0.0,
+        "xp_super": 0.0,
+    }
+
+
+def get_guest_player(create=True):
+    state = session.get("guest_player")
+    if not state and create:
+        state = create_guest_state()
+        session["guest_player"] = state
+    return GuestPlayer(state) if state else None
+
+
+def get_active_player():
+    return current_user if current_user.is_authenticated else get_guest_player()
+
+
+def save_active_player(player):
+    if current_user.is_authenticated:
+        db.session.commit()
+    else:
+        session["guest_player"] = player.as_state()
+        session.modified = True
+
+
+def copy_guest_progress(player):
+    guest = get_guest_player(create=False)
+    if not guest:
+        return
+
+    for field in GuestPlayer.fields[1:]:
+        setattr(player, field, getattr(guest, field))
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(Player, int(user_id))
@@ -148,9 +256,11 @@ def register():
             return redirect(url_for("register"))
 
         new_player = Player(username=username, password_hash=generate_password_hash(password))
+        copy_guest_progress(new_player)
         db.session.add(new_player)
         db.session.commit()
 
+        session.pop("guest_player", None)
         login_user(new_player)
         return redirect(url_for("index"))
 
@@ -178,31 +288,39 @@ def logout():
     return redirect(url_for("login"))
 
 @app.route("/")
-@login_required
 def index():
-    return render_template("index.html", player=current_user, games=GAMES)
+    return render_template("index.html", player=get_active_player(), games=GAMES)
+
+@app.route("/about")
+@app.route("/contact")
+def about():
+    return render_template("about.html")
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/ads.txt")
+def ads_txt():
+    return send_from_directory(basedir, "ads.txt", mimetype="text/plain")
 
 @app.route("/arena")
-@login_required
 def arena():
-    return render_template("arena.html", player=current_user)
+    return render_template("arena.html", player=get_active_player())
 
 @app.route("/shop")
-@login_required
 def shop():
-    return render_template("shop.html", player=current_user)
+    return render_template("shop.html", player=get_active_player())
 
 @app.route("/leaderboard")
-@login_required
 def leaderboard():
     top_players = Player.query.order_by(
         Player.arena_level.desc(),
         (Player.xp_aim + Player.xp_timing + Player.xp_defense + Player.xp_agility + Player.xp_super).desc(),
     ).limit(10).all()
-    return render_template("leaderboard.html", players=top_players)
+    return render_template("leaderboard.html", players=top_players, player=get_active_player())
 
 @app.route("/play/<slug>")
-@login_required
 def play_game(slug):
     if slug not in GAMES:
         return "The requested training module was not found.", 404
@@ -210,22 +328,22 @@ def play_game(slug):
     other_games = {key: value for key, value in GAMES.items() if key != slug}
     recommended_keys = random.sample(list(other_games.keys()), min(3, len(other_games)))
     recommended_games = {key: other_games[key] for key in recommended_keys}
-    return render_template("game.html", game=GAMES[slug], slug=slug, recommended=recommended_games)
+    return render_template("game.html", game=GAMES[slug], slug=slug, recommended=recommended_games, player=get_active_player())
 
 @app.route("/api/save_xp", methods=["POST"])
-@login_required
 def save_xp():
     data = request.get_json(silent=True) or {}
-    player = current_user
+    player = get_active_player()
 
     xp_distribution = data.get("xp_distribution")
     try:
         if xp_distribution:
             xp_values = {
                 key: min(MAX_XP_PER_REQUEST, max(0.0, float(xp_distribution.get(key, 0) or 0)))
-                for key in ("aim", "timing", "defense", "agility", "super")
+                for key in ("health", "aim", "timing", "defense", "agility", "super")
             }
 
+            player.xp_health += xp_values["health"]
             player.xp_aim += xp_values["aim"]
             player.xp_timing += xp_values["timing"]
             player.xp_defense += xp_values["defense"]
@@ -247,29 +365,27 @@ def save_xp():
     except (TypeError, ValueError):
         return jsonify({"success": False, "error": "Invalid XP payload."}), 400
 
-    db.session.commit()
+    save_active_player(player)
     return jsonify({"success": True, "new_stats": player.to_dict()})
 
 @app.route("/api/win_arena", methods=["POST"])
-@login_required
 def win_arena():
-    player = current_user
+    player = get_active_player()
     player.arena_level += 1
     reward = 50 + (player.arena_level * 10)
     player.cyber_credits += reward
-    db.session.commit()
+    save_active_player(player)
     return jsonify({"success": True, "new_level": player.arena_level, "credits": player.cyber_credits})
 
 @app.route("/api/buy_hp", methods=["POST"])
-@login_required
 def buy_hp():
-    player = current_user
+    player = get_active_player()
     cost = 100 + ((player.bonus_hp // 25) * 50)
 
     if player.cyber_credits >= cost:
         player.cyber_credits -= cost
         player.bonus_hp += 25
-        db.session.commit()
+        save_active_player(player)
         return jsonify({"success": True, "new_hp": player.max_health, "credits": player.cyber_credits})
 
     return jsonify({"success": False, "error": "Not enough cyber credits."}), 400
@@ -277,6 +393,10 @@ def buy_hp():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        player_columns = {column["name"] for column in inspect(db.engine).get_columns("player")}
+        if "xp_health" not in player_columns:
+            db.session.execute(text("ALTER TABLE player ADD COLUMN xp_health FLOAT DEFAULT 0"))
+            db.session.commit()
     is_production = os.getenv("PROD", "0").strip() == "1"
     host = os.getenv("HOST", "0.0.0.0" if is_production else "127.0.0.1")
     port = int(os.getenv("PORT", "5000"))

@@ -26,6 +26,9 @@
 
             <button type="submit" class="enter-arena-btn" style="border-color: #d2a8ff; color: #d2a8ff; margin-top: 5px;">REGISTER</button>
         </form>
+        {% if guest_mode %}
+            <p class="guest-save-note">Your current guest progress as {{ guest_player.username }} will be transferred to this account.</p>
+        {% endif %}
         <p style="margin-top: 20px; font-size: 14px;">Already have an account? <a href="/login" style="color: #66fcf1;">Log in.</a></p>
     </div>
 </div>

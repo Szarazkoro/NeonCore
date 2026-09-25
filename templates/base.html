@@ -3,9 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cyber Portal{% endblock %}</title>
+    <title>{% block title %}Bodor Game{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+        window.gtag('consent', 'default', {
+            ad_storage: 'denied',
+            analytics_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+        });
+        window.BODOR_GOOGLE_ADSENSE_CLIENT_ID = {{ config.get('GOOGLE_ADSENSE_CLIENT_ID', '')|tojson }};
+    </script>
     <script>
         (() => {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
@@ -24,15 +36,15 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="/" class="logo">CYBER-PORTAL</a>
+        <a href="/" class="logo">BODOR GAME</a>
         <div class="nav-links">
             {% if current_user.is_authenticated %}
                 <span style="color: #2ea043; font-weight: bold; margin-right: 20px; text-shadow: 0 0 10px #2ea043;">
                     <span id="navCredits">¤{{ current_user.cyber_credits }}</span> CREDITS
                 </span>
-                <a href="/shop" style="margin-right: 20px; font-weight: bold; color: #2ea043;">🛒 CYBER SHOP</a>
-                <a href="/leaderboard" style="margin-right: 20px; font-weight: bold; color: #f1c40f;">🏆 LEADERBOARD</a>
-                <span style="color: #66fcf1; margin-right: 20px;">[ Hero: {{ current_user.username }} ]</span>
+                    <a href="/shop" style="margin-right: 20px; font-weight: bold; color: #2ea043;">🛒 ARMORY</a>
+                <a href="/leaderboard" style="margin-right: 20px; font-weight: bold; color: #f1c40f;">🏆 RANKINGS</a>
+                <span style="color: #66fcf1; margin-right: 20px;">[ Fighter: {{ current_user.username }} ]</span>
                 <button id="bgMusicToggle" class="audio-toggle" type="button" aria-pressed="false">MUTE BGM</button>
                     <label class="audio-control" title="Background music volume">
                         BGM
@@ -43,11 +55,13 @@
                 <a href="/login">Login</a>
                 <a href="/register">Register</a>
             {% endif %}
+            {% if guest_mode %}
+                <span class="guest-identity">[ Guest: {{ guest_player.username }} ]</span>
+                <a href="{{ url_for('register') }}" class="guest-save-link">Save progress</a>
+            {% endif %}
+            <a href="{{ url_for('about') }}">About / Contact</a>
+            <a href="{{ url_for('privacy') }}">Privacy</a>
         </div>
-    </div>
-
-    <div class="ad-container-top">
-        [ Premium Banner Slot ]
     </div>
 
     <main class="container">
@@ -55,10 +69,27 @@
     </main>
 
     <footer>
-        &copy; 2026 Cyber Portal. All rights reserved.
+        <span>&copy; 2026 Bodor Game. Build. Fight. Rise.</span>
+        <span class="footer-links">
+            <a href="{{ url_for('about') }}">About / Contact</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <button id="cookieSettingsButton" class="footer-link-button" type="button">Cookie settings</button>
+        </span>
     </footer>
+
+    <section id="cookieConsent" class="cookie-consent" role="dialog" aria-label="Cookie consent" hidden>
+        <div>
+            <strong>Cookies at Bodor Game</strong>
+            <p>We use essential cookies to keep the service secure and remember your preferences. Optional Google advertising and analytics technologies are off until you choose to allow them.</p>
+        </div>
+        <div class="cookie-actions">
+            <button id="cookieDecline" class="cookie-button cookie-button-secondary" type="button">Decline optional</button>
+            <button id="cookieAccept" class="cookie-button" type="button">Allow optional cookies</button>
+        </div>
+    </section>
 
     <script src="{{ url_for('static', filename='js/audio-system.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bg-music.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cookie-consent.js') }}"></script>
 </body>
 </html>

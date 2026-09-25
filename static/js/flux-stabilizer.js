@@ -6,7 +6,7 @@ const xpBarFill = document.getElementById('xpBarFill');
 const gameContainer = document.getElementById('gameContainer');
 
 let rawScore = 0, totalRealXP = 0, streak = 0, multiplier = 1, frameCount = 0;
-let pendingDefense = 0, pendingTiming = 0;
+let pendingHealth = 0, pendingTiming = 0;
 
 let barY = canvas.height - 100, barHeight = 80;
 let isHolding = false;
@@ -14,16 +14,16 @@ let targetY = canvas.height / 2, targetVy = 0;
 let difficulty = 0.05;
 
 function savePendingXP() {
-    let sDef = Math.floor(pendingDefense), sTim = Math.floor(pendingTiming);
-    if (sDef > 0 || sTim > 0) {
-        pendingDefense -= sDef; pendingTiming -= sTim;
+    let sHealth = Math.floor(pendingHealth), sTim = Math.floor(pendingTiming);
+    if (sHealth > 0 || sTim > 0) {
+        pendingHealth -= sHealth; pendingTiming -= sTim;
         fetch('/api/save_xp', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ xp_distribution: { defense: sDef, timing: sTim } })
+                        body: JSON.stringify({ xp_distribution: { health: sHealth, timing: sTim } })
                 }).then(response => { if (!response.ok) throw new Error('XP save failed'); return response.json(); })
                     .then(() => updateUI())
                     .catch(() => {
-                            pendingDefense += sDef;
+                            pendingHealth += sHealth;
                             pendingTiming += sTim;
                             updateUI();
                     });
@@ -43,14 +43,14 @@ function addScore() {
     rawScore += 0.7 * multiplier;
     let diff = Math.floor(rawScore / 100) - totalRealXP;
     if (diff > 0) {
-        totalRealXP += diff; pendingDefense += diff * 0.4; pendingTiming += diff * 0.6; // 40-60 elosztás
+        totalRealXP += diff; pendingHealth += diff * 0.6; pendingTiming += diff * 0.4; // 60-40 elosztás
         if(xpBarFill) { xpBarFill.style.filter = "brightness(2)"; setTimeout(() => xpBarFill.style.filter = "brightness(1)", 200); }
     }
     updateUI();
 }
 
 function updateUI() {
-    if(realXpDisplay) realXpDisplay.innerText = Math.floor(pendingDefense) + Math.floor(pendingTiming);
+    if(realXpDisplay) realXpDisplay.innerText = Math.floor(pendingHealth) + Math.floor(pendingTiming);
     const visibleScore = Math.round(rawScore % 100);
     if(rawScoreDisplay) rawScoreDisplay.innerText = visibleScore;
     if(xpBarFill) xpBarFill.style.width = `${visibleScore}%`;

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}About & Contact - Bodor Game{% endblock %}
+
+{% block content %}
+<div class="info-page">
+    <div class="info-hero">
+        <p class="eyebrow">BODOR GAME / OPEN CHANNEL</p>
+        <h1>About the arena</h1>
+        <p class="lead">Bodor Game is a browser-based cyber arena where short training modules turn practice into progression.</p>
+    </div>
+
+    <div class="info-grid">
+        <section class="info-panel">
+            <h2>What is Bodor Game?</h2>
+            <p>Train your fighter in focused mini-games, upgrade core stats, then take your build into the arena. The project is built as an independent game portal and is still evolving.</p>
+            <p>New modules, balancing changes and cosmetic features may arrive over time. Your account data is used to provide the game experience described in the <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
+        </section>
+
+        <section class="info-panel contact-panel">
+            <h2>Contact</h2>
+            <p>For feedback, bug reports, partnership requests or advertising enquiries, use the project repository:</p>
+            <a class="contact-link" href="mailto:support@bodorgame.com">support@bodorgame.com</a>
+            <a class="contact-link" href="https://github.com/Szarazkoro/NeonCore" target="_blank" rel="noopener noreferrer">github.com/Szarazkoro/NeonCore</a>
+            <p class="muted">The repository's Issues section is the fastest way to report a problem or start a conversation.</p>
+            <a class="action-btn info-action" href="https://github.com/Szarazkoro/NeonCore/issues" target="_blank" rel="noopener noreferrer">Open contact channel</a>
+        </section>
+    </div>
+
+</div>
+{% endblock %}

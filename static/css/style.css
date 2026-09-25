@@ -22,9 +22,11 @@ body {
     align-items: center; 
     border-bottom: 2px solid #45a29e;
 }
-.logo { color: #66fcf1; font-size: 24px; font-weight: bold; text-decoration: none; }
+.logo { color: #b8ff3d; font-size: 24px; font-weight: bold; text-decoration: none; letter-spacing: 1px; text-shadow: 0 0 12px rgba(184, 255, 61, 0.45); }
 .nav-links a { color: #c5c6c7; text-decoration: none; font-size: 18px; }
 .nav-links a:hover { color: #66fcf1; }
+.guest-identity { color: #8b949e; font-size: 14px; }
+.guest-save-link { color: #b8ff3d !important; font-weight: bold; }
 .audio-toggle {
     margin-right: 20px;
     padding: 6px 10px;
@@ -69,6 +71,54 @@ footer {
     border-top: 1px solid #1f2833; 
     /* A hatalmas margin-top eltávolítva */
 }
+
+footer a, .footer-link-button { color: #8b949e; text-decoration: none; }
+footer a:hover, .footer-link-button:hover { color: #66fcf1; }
+.footer-links { display: inline-flex; gap: 14px; margin-left: 18px; }
+.footer-link-button { background: none; border: 0; cursor: pointer; font: inherit; padding: 0; }
+
+.cookie-consent {
+    position: fixed;
+    z-index: 50;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 16px 20px;
+    background: #111820;
+    border: 1px solid #45a29e;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+.cookie-consent[hidden] { display: none; }
+.cookie-consent strong { color: #fff; }
+.cookie-consent p { max-width: 720px; margin: 6px 0 0; color: #aab4be; font-size: 13px; line-height: 1.45; }
+.cookie-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.cookie-button { padding: 10px 14px; border: 1px solid #2ea043; background: #2ea043; color: #061006; cursor: pointer; font-weight: bold; }
+.cookie-button-secondary { border-color: #68737d; background: transparent; color: #c5c6c7; }
+
+.info-page, .legal-page { width: 100%; max-width: 900px; margin: 0 auto; }
+.container:has(.info-page), .container:has(.legal-page) { justify-content: flex-start; overflow-y: auto; }
+.info-hero { border-left: 4px solid #2ea043; padding: 10px 0 10px 24px; margin-bottom: 28px; }
+.eyebrow { color: #2ea043; font-size: 12px; font-weight: bold; letter-spacing: 3px; margin: 0 0 12px; }
+.info-hero h1, .legal-page h1 { color: #fff; font-size: clamp(30px, 5vw, 52px); margin: 0 0 12px; }
+.lead { color: #c5c6c7; font-size: 18px; line-height: 1.6; max-width: 720px; margin: 0; }
+.info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.info-panel { background: #161b22; border: 1px solid #30363d; padding: 24px; }
+.info-panel h2, .legal-page h2 { color: #66fcf1; margin-top: 0; }
+.info-panel p, .legal-page p { color: #c5c6c7; line-height: 1.7; }
+.info-panel a, .legal-page a { color: #66fcf1; }
+.contact-link { display: inline-block; margin: 8px 0 12px; font-family: monospace; font-size: 15px; }
+.muted, .legal-meta { color: #8b949e !important; font-size: 14px; }
+.info-action { display: inline-block; margin-top: 10px; text-decoration: none; border-color: #66fcf1; color: #66fcf1; }
+.ad-container-inline { margin-top: 24px; padding: 22px; border: 1px dashed #39434c; color: #68737d; text-align: center; }
+.legal-page { background: #161b22; border: 1px solid #30363d; padding: 30px 34px; }
+.legal-page h2 { margin: 28px 0 8px; font-size: 20px; }
+.legal-note { margin-top: 30px; padding: 14px 16px; border-left: 3px solid #f1c40f; background: rgba(241, 196, 15, 0.06); color: #c5c6c7; line-height: 1.5; font-size: 13px; }
+.guest-save-note { color: #8b949e; font-size: 13px; text-align: center; margin: 14px 0 0; }
+.guest-save-note a { color: #b8ff3d; }
 
 /* =========================================
    2. KÖZPONT (HUB) ÉS KÁRTYÁK
@@ -361,4 +411,10 @@ canvas { display: block; width: 100%; height: 100%; }
     .vs-badge { font-size: 28px; }
     .action-panel { flex-wrap: wrap; gap: 12px; }
     .action-panel > div { min-width: min(210px, 100%) !important; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; margin: 8px 0 0; }
+    .cookie-consent { left: 10px; right: 10px; bottom: 10px; flex-direction: column; align-items: stretch; gap: 12px; }
+    .cookie-actions { justify-content: stretch; }
+    .cookie-button { flex: 1; }
+    .info-grid { grid-template-columns: 1fr; }
+    .legal-page { padding: 22px 18px; }
 }
