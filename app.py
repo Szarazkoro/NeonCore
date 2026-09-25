@@ -224,6 +224,18 @@ def copy_guest_progress(player):
     for field in GuestPlayer.fields[1:]:
         setattr(player, field, getattr(guest, field))
 
+
+def initialize_database():
+    with app.app_context():
+        db.create_all()
+        player_columns = {column["name"] for column in inspect(db.engine).get_columns("player")}
+        if "xp_health" not in player_columns:
+            db.session.execute(text("ALTER TABLE player ADD COLUMN xp_health FLOAT DEFAULT 0"))
+            db.session.commit()
+
+
+initialize_database()
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(Player, int(user_id))
@@ -391,12 +403,6 @@ def buy_hp():
     return jsonify({"success": False, "error": "Not enough cyber credits."}), 400
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        player_columns = {column["name"] for column in inspect(db.engine).get_columns("player")}
-        if "xp_health" not in player_columns:
-            db.session.execute(text("ALTER TABLE player ADD COLUMN xp_health FLOAT DEFAULT 0"))
-            db.session.commit()
     is_production = os.getenv("PROD", "0").strip() == "1"
     host = os.getenv("HOST", "0.0.0.0" if is_production else "127.0.0.1")
     port = int(os.getenv("PORT", "5000"))
