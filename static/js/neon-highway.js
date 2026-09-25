@@ -68,6 +68,11 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowRight' || e.code === 'KeyD') { playerLane = Math.min(2, playerLane + 1); }
 });
 
+canvas.addEventListener('pointerdown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    playerLane = Math.max(0, Math.min(2, Math.floor((e.clientX - rect.left) / (rect.width / 3))));
+});
+
 function spawnObject() {
     let lane = Math.floor(Math.random() * 3);
     let isBad = Math.random() > 0.4; // 60% piros, 40% zöld

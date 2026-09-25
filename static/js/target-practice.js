@@ -48,7 +48,9 @@ function spawnTarget() {
 
 canvas.addEventListener('pointerdown', (e) => {
     if(e.target && e.target.tagName === 'A') return;
-    const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX, mouseY = (e.clientY - rect.top) * scaleY;
     for (let i = targets.length - 1; i >= 0; i--) {
         if (Math.hypot(mouseX - targets[i].x, mouseY - targets[i].y) <= targets[i].radius) {
             targets.splice(i, 1); addScore(7); return; // Eltalálta

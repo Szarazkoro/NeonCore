@@ -61,6 +61,9 @@ window.addEventListener('mousedown', () => isHolding = true);
 window.addEventListener('mouseup', () => isHolding = false);
 window.addEventListener('keydown', (e) => { if(e.code==='Space'){ e.preventDefault(); isHolding = true;} });
 window.addEventListener('keyup', (e) => { if(e.code==='Space') isHolding = false; });
+canvas.addEventListener('pointerdown', () => { isHolding = true; });
+canvas.addEventListener('pointerup', () => { isHolding = false; });
+canvas.addEventListener('pointercancel', () => { isHolding = false; });
 
 function update() {
     frameCount++;

@@ -92,6 +92,27 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+let touchStart = null;
+canvas.addEventListener('pointerdown', (e) => {
+    touchStart = { x: e.clientX, y: e.clientY };
+});
+canvas.addEventListener('pointerup', (e) => {
+    if (!touchStart) return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    const input = Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? 'RIGHT' : 'LEFT')
+        : (dy > 0 ? 'DOWN' : 'UP');
+    if (input === sequence[currentIndex]) {
+        currentIndex++;
+        if (currentIndex >= sequence.length) addScore(15);
+    } else {
+        breakCombo();
+    }
+});
+
 function update() {
     timeLeft -= depletionRate;
     if (timeLeft <= 0) breakCombo(); // Lejárt az idő!

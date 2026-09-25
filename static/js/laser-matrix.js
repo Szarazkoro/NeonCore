@@ -94,17 +94,18 @@ function updateUI() {
 }
 
 // Egér követése (A játékos)
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener('pointermove', (e) => {
     const rect = canvas.getBoundingClientRect();
-    player.x = e.clientX - rect.left;
-    player.y = e.clientY - rect.top;
+    player.x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    player.y = (e.clientY - rect.top) * (canvas.height / rect.height);
 });
 
 // Lövés (Kattintás)
 canvas.addEventListener('pointerdown', (e) => {
     if(e.target && e.target.tagName === 'A') return;
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX, mouseY = (e.clientY - rect.top) * scaleY;
     
     let hit = false;
     for (let i = targets.length - 1; i >= 0; i--) {
